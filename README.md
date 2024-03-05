@@ -1,1 +1,1 @@
-Series on substrate tutorial published [here](https://hackmd.io/@Exquisitus/Hy2TcPq2a)
+A published series of substrate tutorials [here](https://hackmd.io/@Exquisitus/Hy2TcPq2a)
