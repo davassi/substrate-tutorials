@@ -1,24 +1,24 @@
 ## Substrate from scratch, seriously.
 #### A series of tutorials to grasp and learn Substrate. Part 1.
 
-Let's get our hands dirty and let's build a coin-flipper from scratch with Substrate.
+Let's get our hands dirty and let's build a coin-flipper from scratch using the Substrate framework.
 
 ![Coin Flipping Retro Image](https://cdn-images-1.medium.com/max/800/0*NrLhr3_jviORad-b.jpg)
 *The pleasure of flipping a coin, before Substrate.*
 
 My experience with the [Polkadot Blockchain Academy](https://polkadot.network/development/blockchain-academy/) in Hong Kong was terrific (and I *strongly, strongly* recommend everyone interested [to apply and participate](https://polkadot.network/development/blockchain-academy/])).
 
-I had the opportunity to delve deep into [the internals of Polkadot and Substrate](https://polkadot-blockchain-academy.github.io/pba-content/hong-kong-2024/index.html) following the lectures of quite skilled instructors. Polkadot is an technology that modularises the bloated, monolithic and static concepts of ethereum and bitcoin, making it modular and *evolutionary*. Frankly, it makes ethereum and bitcoin look like technologies from a prior generation.
+Following the lectures of skilled instructors, I had the opportunity to delve deep into [the internals of Polkadot and Substrate](https://polkadot-blockchain-academy.github.io/pba-content/hong-kong-2024/index.html). Polkadot is built on a modular and customizable foundation, resulting in a more adaptable and *evolutionary* technology. Frankly, it makes Ethereum and Bitcoin, with their monolithic and static concepts, look like prior-generation technologies.
 
-Substrate, the SDK framework we are going to use to build our chain, is literally a 'scaffolding' blockchain node offered as a ready-to-hack module. It contains a large collection of modules, called "pallets", which encapsulate functionalities of the blockchain ecosystem (such as networking, token management, consensus). This approach *hides a lot of complexity* and allows developers to write their own layer-1 blockchain, so we can just focus on the runtime logic. **However, it's not all rainbows and unicorns.** Such an innovative approach comes at a price: a lot of complexity is hidden, so a developer really needs to know what he's doing, and there's a steep learning curve... similar to Rust.
+Substrate, the [SDK framework](https://github.com/paritytech/polkadot-sdk) we are going to use, serves as a pre-built, customizable 'scaffolding' blockchain node. It contains a large collection of modules, called "pallets", that encapsulate essential blockchain functions like networking, token management, consensus, and others.
 
-Lots of engines are built in, so writing a layer 1 chain runtime logic with substrate is a breeze. On the other side of the coin, the *type system* and all the *pallet configuration* details are a bit tricky to understand at first. Besides, it's normal to dig deep into pallet code and documentation, **you can get lost from the amount of *associated types* you have to deal with.** There are few concepts, and some macros you need to understand properly before coding anything.
+Substrate simplifies the process, *hides a lot of complexity* and allows developers to create their own layer-1 blockchain, focusing solely on the runtime logic. However, **such an innovative approach comes at a cost**. While a lot of complexity is concealed, developers still need to know exactly what they are doing. This leads to a steep learning curve... similar to Rust.
 
-In my personal experience, I learn much faster when I get my hands dirty building a project and experimenting with the code. This tutorial is a biased approach to learning, as I'm describing exactly how I learned to build a substrate app. 
+On the one hand, Substrate has plenty of built-in engines, that makes it a breeze to write a layer-1 chain runtime logic. On the other hand, the *type system* and all the *pallet configuration* details may be a bit tricky to understand at first. Delving deep into pallet code and documentation, you can easily **get lost** due to the numerous associated types you have to deal with.
 
-**So, I decided to write the Substrate tutorials I wished to read myself.** I hope my efforts prove useful in understanding this remarkable technology.
+**So, I decided to create Substrate tutorials that I wish I had before building my first Substrate app.** This tutorial might be biased because it describes my personal experience, but I hope my efforts prove useful in understanding more this remarkable technology.
 
-Let's create step by step a Substrate coin flipper. **Why a coin flipper?** It's a common [smart contract example](https://github.com/paritytech/ink-playgroung-flipper/blob/main/lib.rs), and my aim is breaking down complex concepts into simpler ones to make it easier to understand how to start to develop a Substrate FRAME pallet. We'll also add some random logic to make it fancier and plenty of tests.
+Let's create step by step a Substrate coin flipper. **Why a coin flipper?** It's a common [smart contract example](https://github.com/paritytech/ink-playgroung-flipper/blob/main/lib.rs), and my aim is breaking down complex concepts into simpler ones to make it easier to understand how to start to develop a Substrate pallet. We'll also add some random logic to make it fancier and plenty of tests.
 
 **TLDR**: You can just dive in the final code [here](https://github.com/davassi/substrate-coin-flipper.git). Please feel free to leave comments!
 
@@ -46,7 +46,7 @@ Now, go to exactly to this file:
 $ {YOUR_DIRECTORY_PROJECT}/substrate-coin-flipper/pallets/template/src/lib.rs
 ```
 
-Here's where all our custom pallets live (we'll refactor the *template* name soon).
+Here's where all our custom pallets live.
 
 3. Here is the place that things get interesting, it's the core of our application where we are going to define all the logic of our application.
 Please take some time to study and get familiar with this file: there are 5 Areas defined by macros that are super important to understand. I'm gonna break them down:
@@ -129,7 +129,7 @@ SCF ..> TSCF : "mocked in"
 @enduml
 ```
 
-Here is where things get interesting and in the official documentation this part is not stressed enough. The Config of our pallets contains all specifications and informations that are referenced and derived by different Pallets. All the types and constants that go in here are generic. If the pallet is dependent on specific other pallets, then their configuration traits must be added here to our implied traits list.
+This is where things get interesting, and IMHO the official documentation does not emphasise this part enough. The config of our palettes contains all the specifications and information that is referenced and derived by different Pallets. All types and constants that go in here are generic. If the pallet depends on specific other pallets, then their configuration traits must be added here to our implied trait list.
 
 And how we will see, most of the most common associated generic types definitions are centralised in a common pallet called the **frame_system** pallet.
 
@@ -167,14 +167,50 @@ that is even more handy to redefine as
 type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 ```
 
-`<Type as Trait>::item` means accessing the **item** on **Type**, disambiguating the fact that it should come from an implementation **Trait** for **Type**.
+**`<Type as Trait>::item`** means accessing the **item** on **Type**, disambiguating the fact that it should come from an implementation **Trait** for **Type**.
     
 That's it. Once you have understood this concept, configuration becomes pretty straightforward, 
 as later in the in the extrinsic logic, we can use `AccountIdOf<T>` anytime we need to refer to accounts.
 
 It will only at Runtime that **AccountId will be associated to a concrete trait implementation.**
 
-A typical use case (that we won't use in the coin-flipper) is the definition of a contant supported by the trait `Get`:
+### The Config: a little deeper into the nested generic associated types
+
+At this point, we need to briefly discuss more complex generic associated types, which will be useful for future substrate development topics.
+
+Let's consider **BalanceOf<T>** defined as:
+
+```rust=
+type BalanceOf<T> =
+    <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+```
+
+At first glance, it may seem intimidating, but it is the same as **`<Type as Trait>::item`**, repeated three times. In fact, we can express the type in this manner:
+
+```rust=
+type ConfigCurrency<T> = <T as Config>::Currency;
+type ConfigAccountId<T> = <T as frame_system::Config>::AccountId>;
+type BalanceOf<T> = <ConfigCurrency<T> as Currency<ConfigAccountId<T>>::Balance;
+```
+    
+Let's recap and visualise it in a diagram:
+* **type BalanceOf<T**>: This defines a type alias named `BalanceOf` that is generic over `T`.
+
+* **<T as Config>::Currency**: This part specifies that we are referring to the `Currency` associated type from the `Config` trait as implemented by `T`.
+* **as Currency<<T as frame_system::Config>::AccountId>>**: This further specifies that the `Currency` type we just referred to should itself implement the `Currency` trait. It is generic over the account identifier type, which is provided by `AccountId`.
+* **::Balance**: Finally, this part accesses the `Balance` associated type of the `Currency` trait. This `Balance` type is what is actually used to represent the amount of currency (e.g., tokens or coins) an account has.
+
+Let's recap it visually:
+
+![image](https://hackmd.io/_uploads/SkTjHDU6p.png)
+
+Putting it all together, `BalanceOf<T>` is a type alias for the balance type used by a pallet's currency system, where the pallet configuration is provided by T. This allows the type to work at **Runtime** with different currency representations. 
+    
+This is a common pattern for type definition in substrate development.
+    
+### The Config: The only constant in life is change
+**
+A typical use case (that we won't use in the coin-flipper) is the definition of a constant supported by the trait `Get`:
 
 ```rust=
 #[pallet::config]
@@ -183,7 +219,7 @@ pub trait Config: frame_system::Config {
     type VeryUsefulConstant: Get<u32>;
 }
 ```
-and now we can jump in the runtime file to specify the concrete implementation of this associated type with a value, for instance 42:
+Once defined in our Config pallet, we can jump in the runtime file to specify the concrete implementation of this associated type with a value, for instance 42:
 
 ```rust=
 /// Configure the pallet-flipcoin
@@ -465,7 +501,20 @@ After starting the node template locally, we can interact with it using the host
 ```rust
 https://polkadot.js.org/apps/#/explorer?rpc=ws://localhost:9944
 ```
-![image](https://github.com/davassi/substrate-tutorials/assets/1568018/b6838faf-0d83-40f0-b6b4-cbed087c0f07)
+1. First we Select from the menu the Extrinsics selecting one for the existing test accounts (`ALICE` in this case)
+![Developer-Extrinsics](https://github.com/davassi/substrate-tutorials/assets/1568018/b6838faf-0d83-40f0-b6b4-cbed087c0f07)
+    
+2. Second we select our Pallet and the extrinsic we want to invoke
+    
+    ![image](https://hackmd.io/_uploads/SyaBowLap.png)
+
+3. Then we sign the transaction
+    
+    ![image](https://hackmd.io/_uploads/S1fyovL6p.png)
+    
+4. We check the result, it will appear in form of one of these notifications:
+
+    ![image](https://hackmd.io/_uploads/H13siDLTT.png)
 
 ### Tests, tests, plenty of tests.
 
@@ -545,10 +594,17 @@ In this tutorial we have just scratched the surface of substrate development and
 
 The next tutorial will cover Storage and Weight management. Meanwhile, here's a list of some references that were very helpful in understanding Substrate pallet development:
 
+[FRAME from PBA](https://polkadot-blockchain-academy.github.io/pba-content//hong-kong-2024/syllabus/6-FRAME/1-Intro_to_FRAME/Intro_to_FRAME_slides.html#/1)
+
+[Polkadot Deep Dives - Youtube](https://www.youtube.com/playlist?list=PLOyWqupZ-WGsfnlpkk0KWX3uS4yg6ZztG)
+    
 [Substrate Randomness](https://docs.substrate.io/build/randomness/)
 
 [Substrate Storage Structures](https://docs.substrate.io/build/runtime-storage/)
 
 [Substrate Accounts](https://docs.substrate.io/learn/accounts-addresses-keys/)
 
-That's it for the moment. Happy chaining!
+That's it for the moment. If you have suggestions, improvements, or if you find any issues in the code, typos, errors, etc, please feel free to share them on [GitHub](https://github.com/davassi/substrate-tutorials/issues).
+
+I appreciate very much your feedback! 
+Happy chaining!
