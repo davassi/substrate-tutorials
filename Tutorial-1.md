@@ -553,7 +553,7 @@ Let's break down the test:
 * We simulate a signed origin with the mocked account of `ALICE` (defined as an `u64` type).
 * At line 17 we finally call the `create_coin` extrinsic
 * and we check that the `DispatchedResult` is actually an `Ok(())`
-* As final operations we check that the event `Event::CoinCreated` is create and deposited by the Extrinsic.
+* As final operations we check that the event `Event::CoinCreated` is created and deposited by the Extrinsic.
 
 Following exactly the same structure, we can write down the tests for the other 2 Extrinsics:
 
@@ -588,7 +588,7 @@ fn toss_coin_test() {
     });
 }
 ```
-### Final words a further resources
+### Final words and further resources
 
 In this tutorial we have just scratched the surface of substrate development and testing. Writing a proper pallet is more complex and involves also aspects of performance and security to take in consideration. 
 
@@ -608,3 +608,4 @@ That's it for the moment. If you have suggestions, improvements, or if you find 
 
 I appreciate very much your feedback! 
 Happy chaining!
+    
