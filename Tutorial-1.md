@@ -611,5 +611,10 @@ Happy chaining!
 
 ---
 
-Feel free to reach me on [Linkedin](https://www.linkedin.com/in/gianluigidavassi/) or [Discord](https://discord.gg/9kB6vVKU) (*exquisitus9414*)
+Feel free to reach me on
+    
+- Discord: exquisitus9414
+- Telegram: @Exquisitus9414  
+- [Linkedin](https://www.linkedin.com/in/gianluigidavassi/)
+- [GitHub](https://github.com/davassi/)
     
