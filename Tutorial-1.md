@@ -1,7 +1,7 @@
-## Substrate from scratch, seriously.
-#### A series of tutorials to grasp and learn Substrate. Part 1.
+## Substrate from scratch, seriously
+#### A series of tutorials to grasp and learn Substrate. Part 1
 
-Let's get our hands dirty and let's build a coin-flipper from scratch using the Substrate framework.
+Let's get our hands dirty and build a coin-flipper project from scratch using the Substrate framework.
 
 ![Coin Flipping Retro Image](https://cdn-images-1.medium.com/max/800/0*NrLhr3_jviORad-b.jpg)
 *The pleasure of flipping a coin, before Substrate.*
@@ -54,7 +54,7 @@ Please take some time to study and get familiar with this file: there are 5 Area
 ```rust=29
 #[pallet::pallet]
 ```
-* This is the pallet definition. It is literally a placeholder you must alway specify.
+* This is the pallet definition. It is literally a placeholder you must always specify.
 
 ```rust=32
 #[pallet::config]
@@ -83,17 +83,17 @@ There are a lot of other macros `(#[pallet::hooks], #[pallet::genesis_config], #
 
 Ok so far, so good.
 
-### The Config: where the things are starting to getting a little "unusual".
+### The Config: where the things are starting to get a little "unusual".
 
-Logically, if I want to do a coin flipper, obiviously I want to define a **coin** to *flip* (yep, I can define it easily with a struct) but where do I define it? 
+Logically, if I want to do a coin flipper, obviously I want to define a **coin** to *flip* (yep, I can define it easily with a struct) but where do I define it? 
 
 We must never forget that we are dealing with a blockchain, therefore we need always to think in terms of data ledger that needs to be stored (using Storage) and transactions that change the state of this data (the Extrinsics).
 
 Therefore we need to create a `Coin` entity and associate it with my account in the storage.
 
-Now it's the time to dig into **the type system** and the **Configuration**. So, now how do I get my account? I need to identiy my account ID but first I need to find out where is defined the Account type!
+Now it's the time to dig into **the type system** and the **Configuration**. So, now how do I get my account? I need to identify my account ID but first I need to find out where is defined the Account type!
 
-**In any FRAME pallet the Config trait is always generic over T** and this allows our pallet logic to be completely agnostic to any specific implementation details.  The configuration of our pallet will eventually be defined and made concrete at a later stage, in the runtimes or in the mocks for the tests, a pattern that somehow resemble *dependency injection*.
+**In any FRAME pallet the Config trait is always generic over T** and this allows our pallet logic to be completely agnostic to any specific implementation details.  The configuration of our pallet will eventually be defined and made concrete at a later stage, in the runtimes or in the mocks for the tests, a pattern that somehow resembles *dependency injection*.
 
 ```plantuml
 @startuml
@@ -170,7 +170,7 @@ type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 **`<Type as Trait>::item`** means accessing the **item** on **Type**, disambiguating the fact that it should come from an implementation **Trait** for **Type**.
     
 That's it. Once you have understood this concept, configuration becomes pretty straightforward, 
-as later in the in the extrinsic logic, we can use `AccountIdOf<T>` anytime we need to refer to accounts.
+as in the extrinsic logic, we can use `AccountIdOf<T>` anytime we need to refer to accounts.
 
 It will only at Runtime that **AccountId will be associated to a concrete trait implementation.**
 
@@ -219,7 +219,7 @@ pub trait Config: frame_system::Config {
     type VeryUsefulConstant: Get<u32>;
 }
 ```
-Once defined in our Config pallet, we can jump in the runtime file to specify the concrete implementation of this associated type with a value, for instance 42:
+Once defined in our `Config` pallet, we can jump in the runtime file to specify the concrete implementation of this associated type with a value, for instance `42`:
 
 ```rust=
 /// Configure the pallet-flipcoin
@@ -228,11 +228,11 @@ impl pallet_dex::Config for Runtime {
     type VeryUsefulConstant = ConstU32<42>;
 }
 ```
-Noteworthy is that this comes very handy in the moment we need to execute some tests, therefore we just configure a Mock runtime to test the pallet.
+Noteworthy is that this comes very handy at the moment we need to execute some tests, therefore we just configure a Mock runtime to test the pallet.
 
-### The Storage: an handy place to write down in our blockchain.
+### The Storage: a handy place to write down in our blockchain.
 
-Now it's the time to define our data model: a `CoinSide` enum that define `Head` and `Tail` and a `Coin` struct that holds one of this 2 values. Both types extends the `Default` traits, therefore I expect a default implementation when I build an object from these types. In this particular case, we have chosen to create a `Coin` that starts always with `Head`.
+Now it's the time to define our data model: a `CoinSide` enum that define `Head` and `Tail` and a `Coin` struct that holds one of these 2 values. Both types extend the `Default` traits, therefore I expect a default implementation when I build an object from these types. In this particular case, we have chosen to create a `Coin` that always starts with `Head`.
 
 ```rust=45
 #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo, PartialOrd, Default)]
@@ -248,20 +248,20 @@ pub struct Coin {
 
 ```
 
-Is generally always a good practice to define your data model in terms of meaningful structs and enums and not use storage just to store scattered unsigned ints or floats values.
+It is generally always a good practice to define your data model in terms of meaningful `structs` and `enums` and not use storage just to store scattered `unsigned ints` or `floats` values.
 
-Now I can define a mapping between an Account and a Coin, through the definition of a StorageMap: 
+Now I can define a mapping between an `Account` and a `Coin`, through the definition of a `StorageMap`: 
 
 ```rust=45
 #[pallet::storage]
 pub type CoinStorage<T> = StorageMap<_, Blake2_128Concat, AccountIdOf<T>, Coin, OptionQuery>;
 ```
 
-This is literally simple as using any HashMap, but effectively we are storing data in the ledger of our blockchain app. 
+This is literally simple as using any `HashMap`, but effectively we are storing data in the ledger of our blockchain app. 
     
-The StorageMap is not the only type of data structure available and it offers a lot of flexibility (ValueQuery, OptionQuery). The part 2 of this tutorial will be dedicated extensively to the Storage, but I want to clarify a couple of points:
+The `StorageMap` is not the only type of data structure available and it offers a lot of flexibility (`ValueQuery`, `OptionQuery`). The part 2 of this tutorial will be dedicated extensively to the `Storage`, but I want to clarify a couple of points:
 
-1. As anyone can notice immediately, the enum `CoinSide` and the struct `Coin` are filled with derived macros: `Clone, Encode, Decode`, etc... all these macros are necessary to allow our types to be used inside a Storage.
+1. As anyone can notice immediately, the enum `CoinSide` and the struct `Coin` are filled with derived macros: `Clone, Encode, Decode`, etc... all these macros are necessary to allow our types to be used inside a `Storage`.
 2. The Storage uses `Blake2_128Concat`. This is a hashing algorithm we are using for `StorageMap`. There are several hashing functions with different properties. All material for Part 2 tutorial.
 
 ### The Extrinsics: changing state to our blockchain from external world.
@@ -276,7 +276,7 @@ B. Root calls that are allowed to be made only by the governance system.
 
 C. There's also another type, the unsigned transactions, that we won't cover here now.
 
-We are going to write only extrinsics of type A. The business logic defines the behavious of our pallet, as here is where the "macro magic" enables agents from external world to interact with our blockchain. Extrinsics are simply a broader term for transactions. 
+We are going to write only extrinsics of type A. The business logic defines the behaviours of our pallet, as here is where the "macro magic" enables agents from external world to interact with our blockchain. Extrinsics are simply a broader term for transactions. 
 
 We will define the following calls: 
 
@@ -284,7 +284,7 @@ We will define the following calls:
 * **`flip_coin`** to flip the coin (head to tail or tail to head) and update the coin with the new value.
 * **`toss_coin`** to toss the coin (random head or tail) and update the coin with the new value.
 
-When writing these functions, we can follow a strucure. Before starting it's important to remember one key rule: **"Do not panic!"** (interpret this in any possible way you can).
+When writing these functions, we can follow a structure. Before starting it's important to remember one key rule: **"Do not panic!"** (interpret this in any possible way you can).
 
 
 ```rust=
@@ -306,7 +306,7 @@ In particular we have:
 #[pallet::call_index(0)]
 ```
  
-* Every extrinsic starts with a derive macros called call_index(counter), where counter is a incremental number. This annotation specifies the index of the call within the pallet. The index is used to identify the call uniquely when it's invoked. 
+* Every extrinsic starts with a derive macros called `call_index(counter)`, where counter is an incremental number. This annotation specifies the index of the call within the pallet. The index is used to identify the call uniquely when it's invoked. 
 
 ```rust=2
 #[pallet::weight(T::WeightInfo::do_something())]
@@ -337,7 +337,7 @@ Self::deposit_event(Event::CoinCreated { who });
 Ok(())
 ```
     
-* Eventually we return a DispatchResult, hopefully an `Ok(())`. Ok() indicates that the function has completed successfully and the transaction fees, if any, are paid (no refund!).
+* Eventually we return a `DispatchResult`, hopefully an `Ok(())`. `Ok()` indicates that the function has completed successfully and the transaction fees, if any, are paid (no refund!).
 
 After this we can go to implement the implementation fo the `do_create_coin`
 
@@ -447,13 +447,13 @@ pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "htt
 +pallet-insecure-randomness-collective-flip = { git = "https://github.com/paritytech/substrate", package = "pallet-insecure-randomness-collective-flip", default-features = false, branch = "polkadot-v1.0.0" }
 ```
 
-2. Second we derive che Config for Insecure Randomness Collective Flip pallet in our Runtime:
+2. Second, we derive the `Config` trait implementation of `Insecure Randomness Collective Flip` pallet in our `Runtime`:
 
 ```rust
 impl pallet_insecure_randomness_collective_flip::Config for Runtime {}
 ```
 
-3. Then we add a reference of the pallet the Runtime in the `construct_runtime!` macro
+3. Then we add a reference of the pallet the `Runtime` in the `construct_runtime!` macro
 
 ```rust
 RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip,
