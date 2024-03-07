@@ -594,8 +594,6 @@ In this tutorial we have just scratched the surface of substrate development and
 
 The next tutorial will cover Storage and Weight management. Meanwhile, here's a list of some references that were very helpful in understanding Substrate pallet development:
 
-[FRAME from PBA](https://polkadot-blockchain-academy.github.io/pba-content//hong-kong-2024/syllabus/6-FRAME/1-Intro_to_FRAME/Intro_to_FRAME_slides.html#/1)
-
 [Polkadot Deep Dives - Youtube](https://www.youtube.com/playlist?list=PLOyWqupZ-WGsfnlpkk0KWX3uS4yg6ZztG)
     
 [Substrate Randomness](https://docs.substrate.io/build/randomness/)
@@ -608,4 +606,10 @@ That's it for the moment. If you have suggestions, improvements, or if you find 
 
 I appreciate very much your feedback! 
 Happy chaining!
+    
+    
+
+---
+
+Feel free to reach me on [Linkedin](https://www.linkedin.com/in/gianluigidavassi/) or [Discord](https://discord.gg/9kB6vVKU) (*exquisitus9414*)
     
