@@ -6,7 +6,7 @@ Let's get our hands dirty and build a coin-flipper project from scratch using th
 ![Coin Flipping Retro Image](https://cdn-images-1.medium.com/max/800/0*NrLhr3_jviORad-b.jpg)
 *The pleasure of flipping a coin, before Substrate.*
 
-My experience with the [Polkadot Blockchain Academy](https://polkadot.network/development/blockchain-academy/) in Hong Kong was terrific (and I *strongly, strongly* recommend everyone interested [to apply and participate](https://polkadot.network/development/blockchain-academy/])).
+My experience with the [Polkadot Blockchain Academy](https://polkadot.network/development/blockchain-academy/) in Hong Kong was terrific (and I *strongly* recommend everyone interested [to apply and participate](https://polkadot.network/development/blockchain-academy/])).
 
 Following the lectures of skilled instructors, I had the opportunity to delve deep into [the internals of Polkadot and Substrate](https://polkadot-blockchain-academy.github.io/pba-content/hong-kong-2024/index.html). Polkadot is built on a modular and customizable foundation, resulting in a more adaptable and *evolutionary* technology. Frankly, it makes Ethereum and Bitcoin, with their monolithic and static concepts, look like prior-generation technologies.
 
@@ -14,13 +14,13 @@ Substrate, the [SDK framework](https://github.com/paritytech/polkadot-sdk) we ar
 
 Substrate simplifies the process, *hides a lot of complexity* and allows developers to create their own layer-1 blockchain, focusing solely on the runtime logic. However, **such an innovative approach comes at a cost**. While a lot of complexity is concealed, developers still need to know exactly what they are doing. This leads to a steep learning curve... similar to Rust.
 
-On the one hand, Substrate has plenty of built-in engines, that makes it a breeze to write a layer-1 chain runtime logic. On the other hand, the *type system* and all the *pallet configuration* details may be a bit tricky to understand at first. Delving deep into pallet code and documentation, you can easily **get lost** due to the numerous associated types you have to deal with.
+On the one hand, Substrate has plenty of built-in engines, which it a breeze to write a layer-1 chain runtime logic. On the other hand, the *type system* and all the *pallet configuration* details may be a bit tricky to understand at first. Delving deep into pallet code and documentation, you can easily **get lost** due to the numerous associated types you have to deal with.
 
 **So, I decided to create Substrate tutorials that I wish I had before building my first Substrate app.** This tutorial might be biased because it describes my personal experience, but I hope my efforts prove useful in understanding more this remarkable technology.
 
-Let's create step by step a Substrate coin flipper. **Why a coin flipper?** It's a common [smart contract example](https://github.com/paritytech/ink-playgroung-flipper/blob/main/lib.rs), and my aim is breaking down complex concepts into simpler ones to make it easier to understand how to start to develop a Substrate pallet. We'll also add some random logic to make it fancier and plenty of tests.
+Let's create step by step a Substrate coin flipper. **Why a coin flipper?** It's a common [smart contract example](https://github.com/paritytech/ink-playgroung-flipper/blob/main/lib.rs), and I aim to break down complex concepts into simpler ones to make it easier to understand how to start to develop a Substrate pallet. We'll also add some random logic to make it fancier and plenty of tests.
 
-**TLDR**: You can just dive in the final code [here](https://github.com/davassi/substrate-coin-flipper.git). Please feel free to leave comments!
+**TLDR**: You can just dive into the final code [here](https://github.com/davassi/substrate-coin-flipper.git). Please feel free to leave comments!
 
 ### Let's start: setting things up.
 
@@ -40,7 +40,7 @@ $ cargo run
 ```
 
 The first time, it will take a while to compile. 
-Now, go to exactly to this file:
+Now, go to exactly this file:
 
 ```bash=
 $ {YOUR_DIRECTORY_PROJECT}/substrate-coin-flipper/pallets/template/src/lib.rs
@@ -48,7 +48,7 @@ $ {YOUR_DIRECTORY_PROJECT}/substrate-coin-flipper/pallets/template/src/lib.rs
 
 Here's where all our custom pallets live.
 
-3. Here is the place that things get interesting, it's the core of our application where we are going to define all the logic of our application.
+3. Here is the place where things get interesting, it's the core of our application where we are going to define all the logic of our application.
 Please take some time to study and get familiar with this file: there are 5 Areas defined by macros that are super important to understand. I'm gonna break them down:
 
 ```rust=29
@@ -60,7 +60,7 @@ Please take some time to study and get familiar with this file: there are 5 Area
 #[pallet::config]
 ```
 
-* This is the configuration pallet, the part we're going to have a lot of ~~struggle~~ fun with. We'll have our own section on it.
+* This is the configuration pallet, the part we're going to have a lot of ~~struggle~~ fun with. We'll have our section on it.
 
 ```rust=59
 #[pallet::storage]
@@ -70,12 +70,12 @@ Please take some time to study and get familiar with this file: there are 5 Area
 ```rust=75
 #[pallet::error]
 ```
-* This is a simple list of errors that logic can rise under certain conditions.
+* This is a simple list of errors that logic can raise under certain conditions.
 
 ```rust=83
 #[pallet::call]
 ```
-* And here is where all the logic of the app is defined. Also this part is very pleasant to write.
+* And here is where all the logic of the app is defined. Also, this part is very pleasant to write.
 
 This is the bare minimum of knowledge required to build a substrate pallet. My personal experience is that all these areas are fairly straightforward, apart from the careful consideration of the type system and configuration pallet as mentioned above.
 
@@ -83,15 +83,15 @@ There are a lot of other macros `(#[pallet::hooks], #[pallet::genesis_config], #
 
 Ok so far, so good.
 
-### The Config: where the things are starting to get a little "unusual".
+### The Config: where things are starting to get a little "unusual".
 
 Logically, if I want to do a coin flipper, obviously I want to define a **coin** to *flip* (yep, I can define it easily with a struct) but where do I define it? 
 
-We must never forget that we are dealing with a blockchain, therefore we need always to think in terms of data ledger that needs to be stored (using Storage) and transactions that change the state of this data (the Extrinsics).
+We must never forget that we are dealing with a blockchain, therefore we need always to think in terms of the data ledger that needs to be stored (using Storage) and transactions that change the state of this data (the Extrinsic).
 
 Therefore we need to create a `Coin` entity and associate it with my account in the storage.
 
-Now it's the time to dig into **the type system** and the **Configuration**. So, now how do I get my account? I need to identify my account ID but first I need to find out where is defined the Account type!
+Now it's time to dig into **the type system** and the **Configuration**. So, now how do I get my account? I need to identify my account ID but first I need to find out where is defined the Account type!
 
 **In any FRAME pallet the Config trait is always generic over T** and this allows our pallet logic to be completely agnostic to any specific implementation details.  The configuration of our pallet will eventually be defined and made concrete at a later stage, in the runtimes or in the mocks for the tests, a pattern that somehow resembles *dependency injection*.
 
@@ -131,14 +131,14 @@ SCF ..> TSCF : "mocked in"
 
 This is where things get interesting, and IMHO the official documentation does not emphasise this part enough. The config of our palettes contains all the specifications and information that is referenced and derived by different Pallets. All types and constants that go in here are generic. If the pallet depends on specific other pallets, then their configuration traits must be added here to our implied trait list.
 
-And how we will see, most of the most common associated generic types definitions are centralised in a common pallet called the **frame_system** pallet.
+As how we will see, most of the most common associated generic types definitions are centralised in a common pallet called the **frame_system** pallet.
 
-Ok, now it seems even more complicated that it is.
+Ok, now it seems even more complicated than it is.
 
 Let's recap:
 
-1. Any pallet has a configuration **composed by associated types.**
-2. Our pallet declares a new configuration that **can derives the associated types** of the dependency pallets. 
+1. Any pallet has a configuration **composed of associated types.**
+2. Our pallet declares a new configuration that **can derive the associated types** of the dependency pallets. 
 3. The Runtime is the place where **we give a specific definition (trait implementation or value) to all the associated types** of the configuration of our pallet.
 
 The Config trait of our pallet is where we define how the runtime or other pallets can provide concrete types or implementations for the abstract concepts defined in our traits.
@@ -147,11 +147,11 @@ From the [official documentation](https://docs.substrate.io/learn/accounts-addre
 
 > `"The properties [...] can be defined generically in the frame_system module. The generic type is then resolved as a specific type in the runtime implementation, and eventually assigned a specific value. [...] The AccountId type remains a generic type until it is assigned a type in the runtime implementation for a pallet that needs this information."`
 
-What does it mean? It means that the pallet called **frame_system** contains all the associated generic type declaration that we need, and we just need to use them inside our pallet and associate to a concrete type in our Runtimes.
+What does it mean? It means that the pallet called **frame_system** contains all the associated generic type declarations that we need, and we just need to use them inside our pallet and associate them with a concrete type in our Runtimes.
 
-So if I check the file frame/system/src/libs.rs I find out that is already defined an associated type called `AccountId`, that is also extended by plenty of other traits. 
+So if I check the file frame/system/src/libs.rs I find out that is already defined by an associated type called `AccountId`, which is also extended by plenty of other traits. 
 
-So inside my Config I will need to use over **a generic T** that extends the frame_system the account id in the form 
+So inside my Config, I will need to use over **a generic T** that extends the frame_system the account id in the form 
 
 ```rust=16
 T::AccountId  
@@ -169,10 +169,10 @@ type AccountIdOf<T> = <T as frame_system::Config>::AccountId;
 
 **`<Type as Trait>::item`** means accessing the **item** on **Type**, disambiguating the fact that it should come from an implementation **Trait** for **Type**.
     
-That's it. Once you have understood this concept, configuration becomes pretty straightforward, 
+That's it. Once you have understood this concept, the configuration becomes pretty straightforward, 
 as in the extrinsic logic, we can use `AccountIdOf<T>` anytime we need to refer to accounts.
 
-It will only at Runtime that **AccountId will be associated to a concrete trait implementation.**
+It will only at Runtime that **AccountId will be associated with a concrete trait implementation.**
 
 ### The Config: a little deeper into the nested generic associated types
 
@@ -185,7 +185,7 @@ type BalanceOf<T> =
     <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 ```
 
-At first glance, it may seem intimidating, but it is the same as **`<Type as Trait>::item`**, repeated three times. In fact, we can express the type in this manner:
+At first glance, it may seem intimidating, but it is the same as **`<Type as Trait>::item`**, repeated three times. We can express the type in this manner:
 
 ```rust=
 type ConfigCurrency<T> = <T as Config>::Currency;
@@ -215,11 +215,11 @@ A typical use case (that we won't use in the coin-flipper) is the definition of 
 ```rust=
 #[pallet::config]
 pub trait Config: frame_system::Config {
-    // Here we specify they type of a very useful u32 constant...
+    // Here we specify the type of a very useful u32 constant...
     type VeryUsefulConstant: Get<u32>;
 }
 ```
-Once defined in our `Config` pallet, we can jump in the runtime file to specify the concrete implementation of this associated type with a value, for instance `42`:
+Once defined in our `Config` pallet, we can jump into the runtime file to specify the concrete implementation of this associated type with a value, for instance `42`:
 
 ```rust=
 /// Configure the pallet-flipcoin
@@ -232,7 +232,7 @@ Noteworthy is that this comes very handy at the moment we need to execute some t
 
 ### The Storage: a handy place to write down in our blockchain.
 
-Now it's the time to define our data model: a `CoinSide` enum that define `Head` and `Tail` and a `Coin` struct that holds one of these 2 values. Both types extend the `Default` traits, therefore I expect a default implementation when I build an object from these types. In this particular case, we have chosen to create a `Coin` that always starts with `Head`.
+Now it's the time to define our data model: a `CoinSide` enum that defines `Head` and `Tail` and a `Coin` struct that holds one of these 2 values. Both types extend the `Default` traits, therefore I expect a default implementation when I build an object from these types. In this particular case, we have chosen to create a `Coin` that always starts with `Head`.
 
 ```rust=45
 #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, MaxEncodedLen, TypeInfo, PartialOrd, Default)]
@@ -257,18 +257,18 @@ Now I can define a mapping between an `Account` and a `Coin`, through the defini
 pub type CoinStorage<T> = StorageMap<_, Blake2_128Concat, AccountIdOf<T>, Coin, OptionQuery>;
 ```
 
-This is literally simple as using any `HashMap`, but effectively we are storing data in the ledger of our blockchain app. 
+This is literally as simple as using any `HashMap`, but effectively we are storing data in the ledger of our blockchain app. 
     
-The `StorageMap` is not the only type of data structure available and it offers a lot of flexibility (`ValueQuery`, `OptionQuery`). The part 2 of this tutorial will be dedicated extensively to the `Storage`, but I want to clarify a couple of points:
+The `StorageMap` is not the only type of data structure available and it offers a lot of flexibility (`ValueQuery`, `OptionQuery`). Part 2 of this tutorial will be dedicated extensively to the `Storage`, but I want to clarify a couple of points:
 
 1. As anyone can notice immediately, the enum `CoinSide` and the struct `Coin` are filled with derived macros: `Clone, Encode, Decode`, etc... all these macros are necessary to allow our types to be used inside a `Storage`.
 2. The Storage uses `Blake2_128Concat`. This is a hashing algorithm we are using for `StorageMap`. There are several hashing functions with different properties. All material for Part 2 tutorial.
 
-### The Extrinsics: changing state to our blockchain from external world.
+### The Extrinsics: changing state of our blockchain from the external world.
 
-So far so good, but how do we specify the logic that implements our flipcoin pallet? We need to implement special kind of transactions, called "Extrinsics", that are essentially state transition functions that are callable externally from our blockchain.
+So far so good, but how do we specify the logic that implements our flipcoin pallet? We need to implement a special kind of transaction, called "Extrinsics", which are essentially state transition functions that are callable externally from our blockchain.
 
-Generally we can split these "calls" into 3 groups: 
+Generally, we can split these "calls" into 3 groups: 
 
 A. Public calls that are called and signed by an external account. 
 
@@ -276,7 +276,7 @@ B. Root calls that are allowed to be made only by the governance system.
 
 C. There's also another type, the unsigned transactions, that we won't cover here now.
 
-We are going to write only extrinsics of type A. The business logic defines the behaviours of our pallet, as here is where the "macro magic" enables agents from external world to interact with our blockchain. Extrinsics are simply a broader term for transactions. 
+We are going to write only extrinsics of type A. The business logic defines the behaviours of our pallet, as here is where the "macro magic" enables agents from the external world to interact with our blockchain. Extrinsics are simply a broader term for transactions. 
 
 We will define the following calls: 
 
@@ -298,9 +298,9 @@ pub fn create_coin(origin: OriginFor<T>) -> DispatchResult {
 }
 ```
 
-As you can see every single Extrinsics have a defined flow structure. 
+As you can see every single Extrinsic has a defined flow structure. 
 The business logic of the extrinsic is wrapped around some functions. 
-In particular we have:
+In particular, we have:
 
 ```rust=1
 #[pallet::call_index(0)]
@@ -331,15 +331,15 @@ Self::do_create_coin(&who)?;
 Self::deposit_event(Event::CoinCreated { who });
 ```
     
-* Assuming the coin creation is successful, this line emits an event to signal that a coin has been created. Emitting an Event is the only way to notify to external observers the execution of the extrinsics.
+* Assuming the coin creation is successful, this line emits an event to signal that a coin has been created. Emitting an Event is the only way to notify external observers of the execution of the extrinsics.
 
 ```rust=7
 Ok(())
 ```
     
-* Eventually we return a `DispatchResult`, hopefully an `Ok(())`. `Ok()` indicates that the function has completed successfully and the transaction fees, if any, are paid (no refund!).
+* Eventually we return a `DispatchResult`, hopefully an `Ok(())`. `Ok()` indicates that the function has been completed successfully and the transaction fees, if any, are paid (no refund!).
 
-After this we can go to implement the implementation fo the `do_create_coin`
+After this, we can implement the logic of the `do_create_coin`
 
 ```rust=
 // This method creates a new coin for the given account
@@ -415,7 +415,7 @@ pub fn do_toss_coin(account_id: &T::AccountId) -> DispatchResult {
     let block_number = <frame_system::Pallet<T>>::block_number();
     let seed = block_number.try_into().unwrap_or_else(|_| 0u32);
 
-    // This is very a simple approach that uses blocknumber as seed source. 
+    // This is very a simple approach that uses blocknumber as a seed source. 
     // Never use it in production. 
     let new_side = if Self::generate_insecure_random_boolean(seed) == true {
         CoinSide::Head
@@ -431,13 +431,13 @@ pub fn do_toss_coin(account_id: &T::AccountId) -> DispatchResult {
 }
 ```
 
-Because we are working with *generic traits*, we don't know if the conversion at runtime will work for '`T::BlockNumber`', as that trait might not directly be a `u32`, depending on how we will define block numbers in our `Runtime` configuration.
+Because we are working with *generic traits*, we don't know if the conversion at runtime will work for '`T::BlockNumber`', as this trait may not be directly a `u32`, depending on how we define block numbers in our `Runtime` configuration.
 
 ### Adding a pallet dependency and deriving the Config
 
-To toss the coin in an almost-random manner we need to enhance the pallet's configuration trait `Config` by using [the Insecure Randomness Collective Flip pallet](https://substrate-developer-hub.github.io/substrate-how-to-guides/docs/pallet-design/randomness). The terms "insecure" stands for the fact that randomness generated is not cryptographically secure, as it can be influenced in various ways to gain an advantage. Having some oracle is the only secure ways of doing it, but for our coin example this pallet is more than enough.
+To toss the coin in an almost-random manner we need to enhance the pallet's configuration trait `Config` by using [the Insecure Randomness Collective Flip pallet](https://substrate-developer-hub.github.io/substrate-how-to-guides/docs/pallet-design/randomness). The terms "insecure" stands for the fact that randomness generated is not cryptographically secure, as it can be influenced in various ways to gain an advantage. Having some oracle is the only secure way of doing it, but for our coin example, this pallet is more than enough.
 
-We are going to declare use a generic trait implementation of `MyRandomness` in the Config of our pallet, and to execute the logic, we need to define it also in our Runtime.
+We are going to declare a generic trait implementation of `MyRandomness` in the Config of our pallet, and to execute the logic, we need to define it also in our Runtime.
 
 1. First we need to declare our pallet dependency inside the Cargo.toml file
 
@@ -447,7 +447,7 @@ pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "htt
 +pallet-insecure-randomness-collective-flip = { git = "https://github.com/paritytech/substrate", package = "pallet-insecure-randomness-collective-flip", default-features = false, branch = "polkadot-v1.0.0" }
 ```
 
-2. Second, we derive the `Config` trait implementation of `Insecure Randomness Collective Flip` pallet in our `Runtime`:
+2. Second, we derive the `Config` trait implementation of the `Insecure Randomness Collective Flip` pallet in our `Runtime`:
 
 ```rust
 impl pallet_insecure_randomness_collective_flip::Config for Runtime {}
@@ -465,7 +465,7 @@ RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip,
 type MyRandomness = RandomnessCollectiveFlip;
 ```
 
-First time you do these things, feels a bit black magic macros, but it is exactly how we have described the procedure of deriving a pallet into our configuration:
+It is worth mentioning that this process is exactly how we have described the process of deriving a pallet in our configuration:
 
 ```plantuml
 @startuml
@@ -512,17 +512,17 @@ https://polkadot.js.org/apps/#/explorer?rpc=ws://localhost:9944
     
     ![image](https://hackmd.io/_uploads/S1fyovL6p.png)
     
-4. We check the result, it will appear in form of one of these notifications:
+4. We check the result, it will appear in the form of one of these notifications:
 
     ![image](https://hackmd.io/_uploads/H13siDLTT.png)
 
 ### Tests, tests, plenty of tests.
 
-As general developer rule, we don't want to release anything in production that does not have a good percentage of tests, for multiple reasons.
+As a general rule, we don't want to release anything in production that does not have a good percentage of tests, for multiple reasons.
 
-* First of all, test code needs always to be considered first class code. Testing is a design activity for our traits.
-* Second, when our codebase became larger and we start introducing fixes, patches, new functionalities or refactorings, we can easily catch regressions.
-* Third, with blockchain we are often dealing with monetary resources as native tokens, fungible assets and NFTs. We do really want to minimize the risk to lose liquidity and reputation due to bugs.
+* First of all, test code needs always to be considered first-class code. Testing is a design activity for our traits.
+* Second, when our codebase becomes larger and we start introducing fixes, patches, new functionalities or refactorings, we can easily catch regressions.
+* Third, with blockchain we are often dealing with monetary resources as native tokens, fungible assets and NFTs. We do really want to minimize the risk of losing liquidity and reputation due to bugs.
 
 We will be concentrating our efforts on the testing of the extrinsics, and located in the test.rs file.
 
@@ -549,7 +549,7 @@ fn create_coin_test() {
 Let's break down the test:
 
 * With `new_test_ext()` we create a local test environment including a new storage according to the definition present in the mock runtime.
-* At line 14 we set up block number 1 in order to go past genesis block (number 0) so events get deposited. 
+* At line 14 we set up block number 1 to go past Genesis block (number 0) so events get deposited. 
 * We simulate a signed origin with the mocked account of `ALICE` (defined as an `u64` type).
 * At line 17 we finally call the `create_coin` extrinsic
 * and we check that the `DispatchedResult` is actually an `Ok(())`
@@ -590,7 +590,7 @@ fn toss_coin_test() {
 ```
 ### Final words and further resources
 
-In this tutorial we have just scratched the surface of substrate development and testing. Writing a proper pallet is more complex and involves also aspects of performance and security to take in consideration. 
+In this tutorial, we have just scratched the surface of substrate development and testing. Writing a proper pallet is more complex and involves also aspects of performance and security to take into consideration. 
 
 The next tutorial will cover Storage and Weight management. Meanwhile, here's a list of some references that were very helpful in understanding Substrate pallet development:
 
@@ -602,7 +602,7 @@ The next tutorial will cover Storage and Weight management. Meanwhile, here's a 
 
 [Substrate Accounts](https://docs.substrate.io/learn/accounts-addresses-keys/)
 
-That's it for the moment. If you have suggestions, improvements, or if you find any issues in the code, typos, errors, etc, please feel free to share them on [GitHub](https://github.com/davassi/substrate-tutorials/issues).
+That's it for the moment. If you have suggestions or improvements, or if you find any issues in the code, typos, errors, etc, please feel free to share them on [GitHub](https://github.com/davassi/substrate-tutorials/issues).
 
 I appreciate very much your feedback! 
 Happy chaining!
